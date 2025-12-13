@@ -5,7 +5,7 @@ COPY . .
 RUN mvn clean package -DskipTests
 
 # Étape 2 : Exécution (Image légère et maintenue)
-FROM eclipse-temurin:17-jdk-jammy
+FROM eclipse-temurin:17-jdk-alpine
 WORKDIR /app
 COPY --from=build /app/target/coach-assistant-back-0.0.1-SNAPSHOT.jar app.jar
 
