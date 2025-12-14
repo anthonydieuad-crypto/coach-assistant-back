@@ -9,7 +9,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/api/evenements")
-@CrossOrigin("*") // Autorise Angular à nous parler
+@CrossOrigin("*")
 public class EvenementController {
 
     private final EvenementService evenementService;
@@ -18,26 +18,24 @@ public class EvenementController {
         this.evenementService = evenementService;
     }
 
-    // GET /api/evenements
+    // GET /api/evenements?coachId=1
     @GetMapping
-    public List<EvenementDto> getAllEvenements() {
-        return evenementService.recupererTousLesEvenements();
+    public List<EvenementDto> getAllEvenements(@RequestParam(required = false) Long coachId) {
+        return evenementService.recupererEvenementsDuCoach(coachId);
     }
 
-    // POST /api/evenements (Création)
+    // POST /api/evenements?coachId=1
     @PostMapping
-    public EvenementDto createEvenement(@RequestBody EvenementDto dto) {
-        return evenementService.sauvegarderEvenement(dto);
+    public EvenementDto createEvenement(@RequestBody EvenementDto dto, @RequestParam(required = false) Long coachId) {
+        return evenementService.sauvegarderEvenement(dto, coachId);
     }
 
-    // PUT /api/evenements/{id} (Mise à jour)
     @PutMapping("/{id}")
     public ResponseEntity<EvenementDto> updateEvenement(@PathVariable Long id, @RequestBody EvenementDto dto) {
-        dto.setId(id); // Sécurité : on force l'ID de l'URL
-        return ResponseEntity.ok(evenementService.sauvegarderEvenement(dto));
+        dto.setId(id);
+        return ResponseEntity.ok(evenementService.sauvegarderEvenement(dto, null));
     }
 
-    // DELETE /api/evenements/{id}
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEvenement(@PathVariable Long id) {
         evenementService.supprimerEvenement(id);

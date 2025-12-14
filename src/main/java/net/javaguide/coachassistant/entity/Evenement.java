@@ -1,5 +1,6 @@
 package net.javaguide.coachassistant.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -22,19 +23,24 @@ public class Evenement {
     private String titre;
     private String type; // 'training', 'plateau', 'match'...
     private String lieu;
-    
+
     @Column(name = "equipes_adverses")
     private String equipesAdverses;
-    
+
     @Column(name = "groupe_evenement")
     private String groupe;
 
-    // Relation : Un événement a plusieurs participants (Joueurs)
+    // 👇 Relation : L'événement appartient à UN coach
+    @ManyToOne
+    @JoinColumn(name = "coach_id")
+    @JsonIgnore
+    private Utilisateur coach;
+
     @ManyToMany
     @JoinTable(
-        name = "evenement_participants",
-        joinColumns = @JoinColumn(name = "evenement_id"),
-        inverseJoinColumns = @JoinColumn(name = "joueur_id")
+            name = "evenement_participants",
+            joinColumns = @JoinColumn(name = "evenement_id"),
+            inverseJoinColumns = @JoinColumn(name = "joueur_id")
     )
     private List<Joueur> participants = new ArrayList<>();
 }

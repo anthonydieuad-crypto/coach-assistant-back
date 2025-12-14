@@ -1,5 +1,6 @@
 package net.javaguide.coachassistant.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
@@ -21,20 +22,24 @@ public class Joueur {
     private String prenom;
     private String nom;
     private String photoUrl;
-    
+
     private String nomParent;
     private String telParent;
     private String emailParent;
 
-    @Column(name = "groupe_joueur") // "groupe" est un mot clé SQL, on le renomme en base
-    private String groupe; 
+    @Column(name = "groupe_joueur")
+    private String groupe;
 
-    // Relation : Un joueur a plusieurs scores
+    // 👇 Relation : Le joueur appartient à UN coach
+    @ManyToOne
+    @JoinColumn(name = "coach_id")
+    @JsonIgnore // Important : évite de renvoyer tout l'objet coach en JSON
+    private Utilisateur coach;
+
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "joueur_id") 
+    @JoinColumn(name = "joueur_id")
     private List<ScoreJongle> historiqueJongles = new ArrayList<>();
 
-    // Relation : Liste des dates de présence
     @ElementCollection
     @CollectionTable(name = "joueur_presences", joinColumns = @JoinColumn(name = "joueur_id"))
     @Column(name = "date_presence")
