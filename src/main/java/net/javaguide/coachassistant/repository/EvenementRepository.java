@@ -7,4 +7,5 @@ import java.util.List;
 public interface EvenementRepository extends JpaRepository<Evenement, Long> {
     // 👇 Trouver uniquement les événements d'un coach spécifique
     List<Evenement> findByCoachId(Long coachId);
+    List<Evenement> findByParticipants_Id(Long joueurId);
 }
