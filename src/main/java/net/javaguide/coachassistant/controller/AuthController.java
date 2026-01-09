@@ -22,7 +22,7 @@ public class AuthController {
         this.passwordEncoder = passwordEncoder;
     }
 
-    @PostMapping("/Login")
+    @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
         String email = loginData.get("email");
         String passwordBrut = loginData.get("password");//mot de passe tapé par l'utilisateur
