@@ -17,7 +17,7 @@ public class SecurityConfig {
 
     //Configuration filtres de sécurité
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http){
         http
                 .csrf(csrf -> csrf.disable())//désactivation du CSRF pour simplifier les appels API
                 .authorizeHttpRequests(auth -> auth
