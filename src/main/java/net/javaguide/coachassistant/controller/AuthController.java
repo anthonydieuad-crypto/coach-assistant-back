@@ -2,10 +2,9 @@ package net.javaguide.coachassistant.controller;
 
 import net.javaguide.coachassistant.entity.Utilisateur;
 import net.javaguide.coachassistant.repository.UtilisateurRepository;
-import net.javaguide.coachassistant.service.EmailService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Map;
 import java.util.Optional;
