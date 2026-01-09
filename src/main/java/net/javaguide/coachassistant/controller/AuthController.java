@@ -16,12 +16,10 @@ import java.util.Optional;
 public class AuthController {
 
     private final UtilisateurRepository utilisateurRepository;
-    private final EmailService emailService;
     private final PasswordEncoder passwordEncoder;
 
     public AuthController(UtilisateurRepository utilisateurRepository, EmailService emailService, PasswordEncoder passwordEncoder) {
         this.utilisateurRepository = utilisateurRepository;
-        this.emailService = emailService;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -49,34 +47,6 @@ public class AuthController {
     }
 
 
-
-
-//    // 👇 NOUVELLE ROUTE D'INSCRIPTION
-//    @PostMapping("/register")
-//    public ResponseEntity<?> register(@RequestBody Utilisateur user) {
-//        if (utilisateurRepository.findByEmail(user.getEmail()).isPresent()) {
-//            return ResponseEntity.badRequest().body("Cet email est déjà utilisé !");
-//        }
-//
-//        if (user.getRole() == null) user.setRole("COACH");
-//
-//        Utilisateur savedUser = utilisateurRepository.save(user);
-//
-//        // 📧 Envoi de l'alerte
-//        try {
-//            emailService.envoyerAlerteNouveauCoach(savedUser);
-//        } catch (Exception e) {
-//            System.err.println("Erreur envoi mail : " + e.getMessage());
-//        }
-//
-//
-//        return ResponseEntity.ok(Map.of(
-//                "id", savedUser.getId(),
-//                "email", savedUser.getEmail(),
-//                "nom", savedUser.getNom(),
-//                "prenom", savedUser.getPrenom()
-//        ));
-//    }
     @PostMapping("/register")
     public ResponseEntity<?> register(@RequestBody Utilisateur user) {
         //vérification que le mail existe déjà
