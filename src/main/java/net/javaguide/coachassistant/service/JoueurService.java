@@ -8,6 +8,7 @@ import net.javaguide.coachassistant.repository.EvenementRepository;
 import net.javaguide.coachassistant.repository.JoueurRepository;
 import net.javaguide.coachassistant.repository.UtilisateurRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -75,7 +76,7 @@ public class JoueurService {
         }
     }
 
-
+    @Transactional
     public void supprimerJoueur(Long id) {
         // 1. On récupère les événements où le joueur est inscrit
         List<Evenement> events = evenementRepository.findByParticipants_Id(id);
