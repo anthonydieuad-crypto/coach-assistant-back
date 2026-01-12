@@ -1,17 +1,20 @@
 package net.javaguide.coachassistant.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 
+import java.util.List;
+
 @Entity
 @Table(name = "utilisateurs")
-@Getter // 👈 Génère getId(), getEmail(), etc. pour TOUS les champs
-@Setter // 👈 Génère setId(), setEmail(), etc. (utile pour JPA)
-@NoArgsConstructor // 👈 Génère le constructeur vide public Utilisateur() {}
-@AllArgsConstructor // 👈 Génère le constructeur avec tous les arguments
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Utilisateur {
 
     @Id
@@ -21,13 +24,21 @@ public class Utilisateur {
     @Column(unique = true, nullable = false)
     private String email;
 
+    @JsonIgnore
     private String password;
+
     private String role;
     private String nom;
     private String prenom;
 
-    // Tu n'as plus besoin d'écrire les constructeurs manuellement grâce aux annotations Lombok ci-dessus !
-    // Mais si tu veux garder ton constructeur spécifique (sans ID), tu peux le laisser ici :
+    @OneToMany(mappedBy = "coach", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Joueur>joueurs;
+
+    @OneToMany(mappedBy = "coach", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
+    private List<Evenement> evenements;
+
 
     public Utilisateur(String email, String password, String role, String nom, String prenom) {
         this.email = email;

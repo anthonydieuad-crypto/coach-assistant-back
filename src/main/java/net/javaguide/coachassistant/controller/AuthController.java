@@ -5,6 +5,7 @@ import net.javaguide.coachassistant.repository.UtilisateurRepository;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import net.javaguide.coachassistant.security.JwtUtils;
 
 import java.util.Map;
 import java.util.Optional;
@@ -16,59 +17,48 @@ public class AuthController {
 
     private final UtilisateurRepository utilisateurRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtUtils jwtUtils; // 👈 Injection
 
-    public AuthController(UtilisateurRepository utilisateurRepository,PasswordEncoder passwordEncoder) {
+    public AuthController(UtilisateurRepository utilisateurRepository, PasswordEncoder passwordEncoder, JwtUtils jwtUtils) {
         this.utilisateurRepository = utilisateurRepository;
         this.passwordEncoder = passwordEncoder;
+        this.jwtUtils = jwtUtils;
     }
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody Map<String, String> loginData) {
         String email = loginData.get("email");
-        String passwordBrut = loginData.get("password");//mot de passe tapé par l'utilisateur
-    //recherche de l'utilisateur
+        String passwordBrut = loginData.get("password");
+
         Optional<Utilisateur> userOpt = utilisateurRepository.findByEmail(email);
-        if (userOpt.isPresent()){
+
+        if (userOpt.isPresent()) {
             Utilisateur user = userOpt.get();
-            //CAS 1 : MDP sécurisé OK
-            if (passwordEncoder.matches(passwordBrut, user.getPassword())) {
-                return renvoyerInfosUser(user);
-            }
-            //CAS 2 : Ancien MDP en clair
-            if (user.getPassword().equals(passwordBrut)) {
-                user.setPassword(passwordEncoder.encode(passwordBrut));
-                utilisateurRepository.save(user);
-                return renvoyerInfosUser(user);
+            // Vérification mot de passe
+            if (passwordEncoder.matches(passwordBrut, user.getPassword()) || user.getPassword().equals(passwordBrut)) {
+
+                // Si vieux mot de passe en clair, on met à jour
+                if (user.getPassword().equals(passwordBrut)) {
+                    user.setPassword(passwordEncoder.encode(passwordBrut));
+                    utilisateurRepository.save(user);
+                }
+
+                // 👇 GÉNÉRATION DU TOKEN
+                String token = jwtUtils.generateToken(user.getEmail(), user.getRole());
+
+                // On renvoie User + Token
+                return renvoyerInfosUser(user, token);
             }
         }
-        //CAS 3 : Échec authentification
         return ResponseEntity.status(401).body("Email ou mot de passe incorrect");
     }
 
+    // Ajoute aussi la génération de token dans le /register si tu veux connecter direct après inscription
 
-    @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody Utilisateur user) {
-        //vérification que le mail existe déjà
-        if (utilisateurRepository.findByEmail(user.getEmail()).isPresent()) {
-            return ResponseEntity.status(400).body("Cet email est déja utilisé.");
-        }
-        //Chiffrage du MDP
-        String motDePasseChiffre = passwordEncoder.encode(user.getPassword());
-        user.setPassword(motDePasseChiffre);
-
-        //Définition du rôle par défaut si non fournit par le Front
-        if (user.getRole() == null || user.getRole().isEmpty()) {
-            user.setRole("COACH");
-        }
-
-        //sauvegarde de l'utilisateur sécurisé
-        Utilisateur savedUser = utilisateurRepository.save(user);
-        //Connection de l'utilisateur avec ses infos
-        return renvoyerInfosUser(savedUser);
-    }
-
-    private ResponseEntity<Map<String, Object>> renvoyerInfosUser(Utilisateur user) {
+    // Modifie la méthode privée pour inclure le token
+    private ResponseEntity<Map<String, Object>> renvoyerInfosUser(Utilisateur user, String token) {
         return ResponseEntity.ok(Map.of(
+                "token", token, // 👈 LE PRÉCIEUX !
                 "id", user.getId(),
                 "email", user.getEmail(),
                 "role", user.getRole() != null ? user.getRole() : "COACH",
